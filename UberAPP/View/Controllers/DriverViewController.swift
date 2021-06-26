@@ -17,6 +17,9 @@ class DriverViewController: UIViewController {
     var socket : SocketIOClient!
     var resetAck: SocketAckEmitter?
     
+    var sourceLocation : CLLocationCoordinate2D?
+    var destinationLocation : CLLocationCoordinate2D?
+
     
     var steps: [MKRoute.Step] = []
     var stepCounter = 0
@@ -26,10 +29,8 @@ class DriverViewController: UIViewController {
     let locationDistance : Double = 300
     var speechsynthesizer = AVSpeechSynthesizer()
     var location = CLLocationCoordinate2D()
-    
     lazy var locationManager : CLLocationManager = {
         let locationManager = CLLocationManager()
-        
         if CLLocationManager.locationServicesEnabled() {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -37,7 +38,6 @@ class DriverViewController: UIViewController {
         } else {
             print("Location services are not enabled")
         }
-        
         return locationManager
     }()
     lazy var mapView : MKMapView = {
@@ -126,8 +126,8 @@ class DriverViewController: UIViewController {
         view.addSubview(startStopNavigation)
         view.addSubview(costLabel)
         view.addSubview(orderView)
-        self.orderView.isHidden = true
         view.addSubview(takeOrderButton)
+        self.orderView.isHidden = true
         locationManager.startUpdatingLocation()
         
         let longPressRecogniser = UILongPressGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
@@ -139,10 +139,8 @@ class DriverViewController: UIViewController {
         }
         socket.on("recieved-order") { data, ack in
             self.orderView.isHidden = false
-
             let allAnnotations = self.orderView.mapView.annotations
             let allOverlays = self.orderView.mapView.overlays
-
             self.orderView.mapView.removeAnnotations(allAnnotations)
             self.orderView.mapView.removeOverlays(allOverlays)
             
@@ -181,6 +179,12 @@ class DriverViewController: UIViewController {
                     self.orderView.orderID.text = order.OrderID
                     self.orderView.clientName.text = order.Username
                     
+                    self.sourceLocation?.latitude = order.userLocation.latitude
+                    self.sourceLocation?.longitude = order.userLocation.longitude
+                    
+                    self.destinationLocation?.latitude = order.destinationLocation.latitude
+                    self.destinationLocation?.longitude = order.destinationLocation.longitude
+
                     let SourceAnnotation = MKPointAnnotation()
                     let DestinationAnnotation = MKPointAnnotation()
                     let DriverAnnotation = MKPointAnnotation()
@@ -193,7 +197,6 @@ class DriverViewController: UIViewController {
                     
                     self.orderView.mapView.addAnnotation(SourceAnnotation)
                     self.orderView.mapView.addAnnotation(DestinationAnnotation)
-                    
                 }
 
             } catch let error as NSError {
@@ -257,7 +260,15 @@ class DriverViewController: UIViewController {
     }
 //MARK:-FUNCTIONS
     @objc private func takeOrderButtonTapped(){
+        let newOrder = Order(OrderID: "7777777", Username: "ayi", cost:"$17.05", userLocation: Location(latitude: 37.787358900000001, longitude: -122.408227), destinationLocation: Location(latitude: 37.77433078294797, longitude: -122.41848946120814))
         
+        let jsonEncoder = JSONEncoder()
+        let jsonData = try! jsonEncoder.encode(newOrder)
+        let data = String(data: jsonData, encoding: String.Encoding.utf8)
+
+        print(data)
+        
+        socket.emit("onOrderAcceptance",  data!)
     }
     @objc private func getDirectionButtonTapped(){
         guard pickLocationTextField.text?.count ?? 0 > 1 else {return}
