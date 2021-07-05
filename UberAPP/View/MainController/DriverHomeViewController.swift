@@ -11,15 +11,12 @@ import CoreLocation
 import AVFoundation
 import SocketIO
 
-class DriverViewController: UIViewController {
+class DriverHomeViewController: UIViewController {
 //MARK:-OBJECTS
     let manager = SocketManager(socketURL: URL(string: "http://localhost:3100")!, config: [.log(true), .connectParams(["token": "abc123"]), .compress, .reconnects(true)])
     var socket : SocketIOClient!
     var resetAck: SocketAckEmitter?
-    
-    var sourceLocation : CLLocationCoordinate2D?
-    var destinationLocation : CLLocationCoordinate2D?
-
+    var orderTaken = false
     
     var steps: [MKRoute.Step] = []
     var stepCounter = 0
@@ -64,27 +61,6 @@ class DriverViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    let pickLocationTextField : UITextField = {
-        let field = UITextField()
-        field.placeholder = "Pick Location"
-        field.backgroundColor = .white
-        field.layer.borderWidth = 2
-        field.layer.borderColor = #colorLiteral(red: 0.5568627715, green: 0.3529411852, blue: 0.9686274529, alpha: 1)
-        field.leftViewMode = .always
-        field.translatesAutoresizingMaskIntoConstraints = false
-        return field
-    }()
-    
-    let getDirectionButton : UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(getDirectionButtonTapped), for: .touchUpInside)
-        button.setTitle("Get", for: .normal)
-        button.backgroundColor = #colorLiteral(red: 0.5568627715, green: 0.3529411852, blue: 0.9686274529, alpha: 1)
-        return button
-    }()
-    
     var costLabel : UILabel = {
         var label = UILabel()
         label.text = "$0.0"
@@ -96,7 +72,6 @@ class DriverViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
     let takeOrderButton : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -105,7 +80,14 @@ class DriverViewController: UIViewController {
         button.backgroundColor = #colorLiteral(red: 0.5568627715, green: 0.3529411852, blue: 0.9686274529, alpha: 1)
         return button
     }()
-    
+    let rejectOrderButton : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(rejectOrderButtonTapped), for: .touchUpInside)
+        button.setTitle("Reject Order", for: .normal)
+        button.backgroundColor = #colorLiteral(red: 0.5568627715, green: 0.3529411852, blue: 0.9686274529, alpha: 1)
+        return button
+    }()
     let startStopNavigation : UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -114,94 +96,28 @@ class DriverViewController: UIViewController {
         button.backgroundColor = .white
         return button
     }()
-
 //MARK:-LIFECYCLES
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .none
         view.addSubview(mapView)
         view.addSubview(directionLabel)
-        view.addSubview(pickLocationTextField)
-        view.addSubview(getDirectionButton)
         view.addSubview(startStopNavigation)
         view.addSubview(costLabel)
         view.addSubview(orderView)
         view.addSubview(takeOrderButton)
+        view.addSubview(rejectOrderButton)
         self.orderView.isHidden = true
         locationManager.startUpdatingLocation()
-        
-        let longPressRecogniser = UILongPressGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
-        longPressRecogniser.minimumPressDuration = 0.5
-        mapView.addGestureRecognizer(longPressRecogniser)
+    
         socket = manager.defaultSocket
         socket.on("connection") { data, ack in
             print("connecteddd")
         }
         socket.on("recieved-order") { data, ack in
+            self.socket.off("recieved-order")
             self.orderView.isHidden = false
-            let allAnnotations = self.orderView.mapView.annotations
-            let allOverlays = self.orderView.mapView.overlays
-            self.orderView.mapView.removeAnnotations(allAnnotations)
-            self.orderView.mapView.removeOverlays(allOverlays)
-            
-            let dataArray = data as NSArray
-            let dataString = dataArray[0] as! String
-            let json = dataString.data(using: String.Encoding.utf8, allowLossyConversion: false)!
-            do {
-                let order: Order = try! JSONDecoder().decode(Order.self, from: json)
-                DispatchQueue.main.async {
-                    let sourcePlacemark = MKPlacemark(coordinate:  CLLocationCoordinate2D(latitude: order.userLocation.latitude, longitude: order.userLocation.longitude))
-                    let destinationPlacemark = MKPlacemark(coordinate:  CLLocationCoordinate2D(latitude: order.destinationLocation.latitude, longitude: order.destinationLocation.longitude))
-                    
-                    let sourceItem = MKMapItem(placemark: sourcePlacemark)
-                    let destinationItem = MKMapItem(placemark: destinationPlacemark)
-                    
-                    let routeRequest = MKDirections.Request()
-                    routeRequest.source = sourceItem
-                    routeRequest.destination = destinationItem
-                    routeRequest.transportType = .automobile
-
-                    let directions = MKDirections(request: routeRequest)
-                    directions.calculate { response, err in
-                        guard let response = response else {
-                            if let err = err {
-                                print(err.localizedDescription)
-                            }
-                            return
-                        }
-                        if response.routes.isEmpty != true {
-                            let route = response.routes[0]
-                            self.orderView.mapView.addOverlay(route.polyline)
-                            self.orderView.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
-                        }
-                    }
-                    self.costLabel.text = order.cost
-                    self.orderView.orderID.text = order.OrderID
-                    self.orderView.clientName.text = order.Username
-                    
-                    self.sourceLocation?.latitude = order.userLocation.latitude
-                    self.sourceLocation?.longitude = order.userLocation.longitude
-                    
-                    self.destinationLocation?.latitude = order.destinationLocation.latitude
-                    self.destinationLocation?.longitude = order.destinationLocation.longitude
-
-                    let SourceAnnotation = MKPointAnnotation()
-                    let DestinationAnnotation = MKPointAnnotation()
-                    let DriverAnnotation = MKPointAnnotation()
-                    SourceAnnotation.title = "Client Location"
-                    DestinationAnnotation.title = "Destination Location"
-                    DriverAnnotation.title = "Driver  45673399225678965678987656789"
-                    SourceAnnotation.coordinate =  CLLocationCoordinate2D(latitude: order.userLocation.latitude, longitude: order.userLocation.longitude)
-                    DestinationAnnotation.coordinate = CLLocationCoordinate2D(latitude: order.destinationLocation.latitude, longitude: order.destinationLocation.longitude)
-                    DriverAnnotation.coordinate = CLLocationCoordinate2D(latitude: (self.locationManager.location?.coordinate.latitude)!, longitude: (self.locationManager.location?.coordinate.longitude)!)
-                    
-                    self.orderView.mapView.addAnnotation(SourceAnnotation)
-                    self.orderView.mapView.addAnnotation(DestinationAnnotation)
-                }
-
-            } catch let error as NSError {
-                print("Failed to load: \(error.localizedDescription)")
-            }
+            self.orderSocketControl(dataArray: data as NSArray)
         }
         socket.connect()
         setSubviews()
@@ -214,19 +130,8 @@ class DriverViewController: UIViewController {
         directionLabel.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/16).isActive = true
         directionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         directionLabel.font = UIFont(name: "AlNile-Bold", size: view.frame.size.width/25)
-        
-        pickLocationTextField.topAnchor.constraint(equalTo: directionLabel.bottomAnchor).isActive = true
-        pickLocationTextField.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 2/3).isActive = true
-        pickLocationTextField.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/16).isActive = true
-        pickLocationTextField.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        pickLocationTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: pickLocationTextField.frame.height))
 
-        getDirectionButton.topAnchor.constraint(equalTo: directionLabel.bottomAnchor).isActive = true
-        getDirectionButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/3).isActive = true
-        getDirectionButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/16).isActive = true
-        getDirectionButton.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-
-        startStopNavigation.topAnchor.constraint(equalTo: getDirectionButton.bottomAnchor).isActive = true
+        startStopNavigation.topAnchor.constraint(equalTo: directionLabel.bottomAnchor).isActive = true
         startStopNavigation.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
         startStopNavigation.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/16).isActive = true
         startStopNavigation.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
@@ -238,9 +143,9 @@ class DriverViewController: UIViewController {
         mapView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
         
         costLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -view.frame.size.height/16).isActive = true
-        costLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 2/3).isActive = true
+        costLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/3).isActive = true
         costLabel.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/16).isActive = true
-        costLabel.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        costLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         costLabel.font = UIFont(name: "AlNile-Bold", size: view.frame.size.width/12)
         
         takeOrderButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -view.frame.size.height/16).isActive = true
@@ -248,6 +153,12 @@ class DriverViewController: UIViewController {
         takeOrderButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/16).isActive = true
         takeOrderButton.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         takeOrderButton.titleLabel?.font = UIFont(name: "AlNile-Bold", size: view.frame.size.width/25)
+        
+        rejectOrderButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -view.frame.size.height/16).isActive = true
+        rejectOrderButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/3).isActive = true
+        rejectOrderButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/16).isActive = true
+        rejectOrderButton.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        rejectOrderButton.titleLabel?.font = UIFont(name: "AlNile-Bold", size: view.frame.size.width/25)
 
         startStopNavigation.setTitle(navigationStarted ? "Stop Navigation" : "Start Navigation", for: .normal)
         
@@ -255,46 +166,24 @@ class DriverViewController: UIViewController {
         orderView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -view.frame.size.width/16).isActive = true
         orderView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 12/16).isActive = true
         orderView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        orderView.orderID.text = "1234567890"
-        orderView.clientName.text = "khayala"
     }
 //MARK:-FUNCTIONS
     @objc private func takeOrderButtonTapped(){
-        let newOrder = Order(OrderID: "7777777", Username: "ayi", cost:"$17.05", userLocation: Location(latitude: 37.787358900000001, longitude: -122.408227), destinationLocation: Location(latitude: 37.77433078294797, longitude: -122.41848946120814))
-        
-        let jsonEncoder = JSONEncoder()
-        let jsonData = try! jsonEncoder.encode(newOrder)
-        let data = String(data: jsonData, encoding: String.Encoding.utf8)
-
-        print(data)
-        
-        socket.emit("onOrderAcceptance",  data!)
-    }
-    @objc private func getDirectionButtonTapped(){
-        guard pickLocationTextField.text?.count ?? 0 > 1 else {return}
-        mapView.removeOverlays(mapView.overlays)
-        if self.mapView.annotations.count > 0 {
-            let allAnnotations = self.mapView.annotations
-            mapView.removeAnnotations(allAnnotations)
-            speechsynthesizer.stopSpeaking(at: .immediate)
-            navigationStarted = false
-            startStopNavigation.setTitle(navigationStarted ? "Stop Navigation" : "Start Navigation", for: .normal)
+        if currentOrder != nil {
+            orderView.isHidden = true
+            mapRoute(destinationCoordinate: CLLocationCoordinate2D(latitude: currentOrder?.userLocation.latitude ?? 0.0 , longitude: currentOrder?.userLocation.longitude ?? 0.0))
         }
-        showMapRoute = true
-        pickLocationTextField.endEditing(true)
-        
-        let geoCoder = CLGeocoder()
-        geoCoder.geocodeAddressString(pickLocationTextField.text!) { placemarks, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
+    }
+    
+    @objc private func rejectOrderButtonTapped(){
+        if currentOrder != nil{
+            currentOrder = nil
+            self.orderView.isHidden = true
+            socket.on("recieved-order") { data, ack in
+                self.socket.off("recieved-order")
+                let dataArray = data as NSArray
+                self.orderSocketControl(dataArray: dataArray)
             }
-            guard let placemarks = placemarks, let placemark = placemarks.first, let location = placemark.location else {return}
-            let destinationCoordinate = location.coordinate
-            self.mapRoute(destinationCoordinate: destinationCoordinate)
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = destinationCoordinate
-            self.mapView.addAnnotation(annotation)
         }
     }
     
@@ -345,6 +234,8 @@ class DriverViewController: UIViewController {
     }
     
     fileprivate func mapRoute(destinationCoordinate: CLLocationCoordinate2D) {
+        let allOverlays = self.mapView.overlays
+        self.mapView.removeOverlays(allOverlays)
         guard let sourceCoordinate = locationManager.location?.coordinate else {return}
         
         let location1 = CLLocation(latitude: sourceCoordinate.latitude, longitude: sourceCoordinate.longitude)
@@ -362,8 +253,6 @@ class DriverViewController: UIViewController {
         routeRequest.source = sourceItem
         routeRequest.destination = destinationItem
         routeRequest.transportType = .automobile
-
-        
         let directions = MKDirections(request: routeRequest)
         directions.calculate { response, err in
             guard let response = response else {
@@ -380,6 +269,7 @@ class DriverViewController: UIViewController {
                 self.steps.removeAll()
                 self.stepCounter = 0
                 self.getRouteSteps(route: route)
+                self.userToDestination()
             }
         }
     }
@@ -399,55 +289,107 @@ class DriverViewController: UIViewController {
         let initialMassage = "In \(Int(steps[stepCounter].distance)) meters \(steps[stepCounter].instructions), then in \(Int(steps[stepCounter + 1].distance)) meters, \(steps[stepCounter + 1].instructions)"
         directionLabel.text = initialMassage
     }
-    
-    @objc func handleTap(_ gestureReconizer: UILongPressGestureRecognizer){
-        mapView.removeOverlays(mapView.overlays)
-        if self.mapView.annotations.count > 0 {
-            let allAnnotations = self.mapView.annotations
-            mapView.removeAnnotations(allAnnotations)
-            navigationStarted = false
-            speechsynthesizer.stopSpeaking(at: .immediate)
-            startStopNavigation.setTitle(navigationStarted ? "Stop Navigation" : "Start Navigation", for: .normal)
-        }
-        let location = gestureReconizer.location(in: mapView)
-        let coordinate = mapView.convert(location,toCoordinateFrom: mapView)
+    private func orderSocketControl(dataArray: NSArray){
+        let allAnnotations = self.orderView.mapView.annotations
+        let allOverlays = self.orderView.mapView.overlays
+        self.orderView.mapView.removeAnnotations(allAnnotations)
+        self.orderView.mapView.removeOverlays(allOverlays)
         
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = coordinate
-        mapView.addAnnotation(annotation)
-        
-        let loc: CLLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        let geo: CLGeocoder = CLGeocoder()
-        geo.reverseGeocodeLocation(loc, completionHandler:
-                    {(placemarks, error) in
-                        if (error != nil)
-                        {
-                            print("reverse geodcode fail: \(error!.localizedDescription)")
-                        }
-                        let pm = placemarks! as [CLPlacemark]
+        let dataString = dataArray[0] as! String
+        let json = dataString.data(using: String.Encoding.utf8, allowLossyConversion: false)!
+        do {
+            let order: Order = try! JSONDecoder().decode(Order.self, from: json)
+            currentOrder = order
+            
+            DispatchQueue.main.async {
+                let sourcePlacemark = MKPlacemark(coordinate:  CLLocationCoordinate2D(latitude: order.userLocation.latitude, longitude: order.userLocation.longitude))
+                let destinationPlacemark = MKPlacemark(coordinate:  CLLocationCoordinate2D(latitude: order.destinationLocation.latitude, longitude: order.destinationLocation.longitude))
+                
+                let sourceItem = MKMapItem(placemark: sourcePlacemark)
+                let destinationItem = MKMapItem(placemark: destinationPlacemark)
+                
+                let routeRequest = MKDirections.Request()
+                routeRequest.source = sourceItem
+                routeRequest.destination = destinationItem
+                routeRequest.transportType = .automobile
 
-                        if pm.count > 0 {
-                            let pm = placemarks![0]
-                            var addressString : String = ""
-                            if pm.subLocality != nil {
-                                addressString = addressString + pm.subLocality! + ", "
-                            }
-                            if pm.administrativeArea != nil {
-                                addressString = addressString + pm.administrativeArea! + ", "
-                            }
-                            if pm.subAdministrativeArea != nil {
-                                addressString = addressString + pm.subAdministrativeArea! + ", "
-                            }
-                            annotation.title = addressString
-                            self.pickLocationTextField.placeholder = "\(addressString)"
-                      }
-                })
-        mapRoute(destinationCoordinate: coordinate)
+                let directions = MKDirections(request: routeRequest)
+                directions.calculate { response, err in
+                    guard let response = response else {
+                        if let err = err {
+                            print(err.localizedDescription)
+                        }
+                        return
+                    }
+                    if response.routes.isEmpty != true {
+                        let route = response.routes[0]
+                        self.orderView.mapView.addOverlay(route.polyline)
+                        self.orderView.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
+                    }
+                }
+                self.costLabel.text = order.cost
+                self.orderView.clientName.text = order.Username
+                
+                let SourceAnnotation = MKPointAnnotation()
+                let DestinationAnnotation = MKPointAnnotation()
+                let DriverAnnotation = MKPointAnnotation()
+                SourceAnnotation.title = "Client Location"
+                DestinationAnnotation.title = "Destination Location"
+                DriverAnnotation.title = "Driver  45673399225678965678987656789"
+                SourceAnnotation.coordinate =  CLLocationCoordinate2D(latitude: order.userLocation.latitude, longitude: order.userLocation.longitude)
+                DestinationAnnotation.coordinate = CLLocationCoordinate2D(latitude: order.destinationLocation.latitude, longitude: order.destinationLocation.longitude)
+                DriverAnnotation.coordinate = CLLocationCoordinate2D(latitude: (self.locationManager.location?.coordinate.latitude)!, longitude: (self.locationManager.location?.coordinate.longitude)!)
+                
+                self.orderView.mapView.addAnnotation(SourceAnnotation)
+                self.orderView.mapView.addAnnotation(DestinationAnnotation)
+            }
+
+        } catch let error as NSError {
+            print("Failed to load: \(error.localizedDescription)")
+        }
+    }
+    
+    private func userToDestination(){
+        guard currentOrder != nil else {return}
+            DispatchQueue.main.async {
+                self.costLabel.text = currentOrder?.cost ?? "0"
+                
+                let SourceAnnotation = MKPointAnnotation()
+                let DestinationAnnotation = MKPointAnnotation()
+                SourceAnnotation.title = "Client Location"
+                DestinationAnnotation.title = "Destination Location"
+                SourceAnnotation.coordinate =  CLLocationCoordinate2D(latitude: currentOrder?.userLocation.latitude ?? 0.0, longitude: currentOrder?.userLocation.longitude ?? 0.0)
+                DestinationAnnotation.coordinate = CLLocationCoordinate2D(latitude: currentOrder?.destinationLocation.latitude ?? 0.0, longitude: currentOrder?.destinationLocation.longitude ?? 0.0)
+                self.mapView.addAnnotation(SourceAnnotation)
+                self.mapView.addAnnotation(DestinationAnnotation)
+            }
+    }
+    
+//MARK:-Animation
+    private func animateOrderView(){
+        let animation = CABasicAnimation()
+        animation.keyPath = "tranform.scale"
+        animation.fromValue = 1
+        animation.toValue = 2
+        animation.duration = 0.4
     }
 }
-
-extension DriverViewController: CLLocationManagerDelegate {
+extension DriverHomeViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let driverLocation = Location(latitude: locationManager.location?.coordinate.latitude ?? 0.0, longitude: locationManager.location?.coordinate.longitude ?? 0.0)
+        let userLocation = Location(latitude: locationManager.location?.coordinate.latitude ?? 0.0, longitude: locationManager.location?.coordinate.longitude ?? 0.0)
+        
+        if driverLocation.latitude == userLocation.latitude  {
+            mapRoute(destinationCoordinate: CLLocationCoordinate2D(latitude: currentOrder?.destinationLocation.latitude ?? 0.0 , longitude: currentOrder?.destinationLocation.longitude ?? 0.0))
+        }
+        
+        let jsonEncoder = JSONEncoder()
+        let jsonData = try! jsonEncoder.encode(driverLocation)
+        let data = String(data: jsonData, encoding: String.Encoding.utf8)
+
+        if orderTaken == true {
+            socket.emit("\(currentOrder?.OrderID)", data!)
+        }
         if !showMapRoute {
             if let location = locations.last {
                 let center = location.coordinate
@@ -458,11 +400,9 @@ extension DriverViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         handleAuthorizationStatus(locationManager: locationManager, status: status)
     }
-    
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         print("entered region")
         stepCounter += 1
-        
         if stepCounter < steps.count {
             let message = "In \(Int(steps[stepCounter].distance)) meters \(steps[stepCounter].instructions)"
             directionLabel.text = message
@@ -477,7 +417,7 @@ extension DriverViewController: CLLocationManagerDelegate {
         }
     }
 }
-extension DriverViewController: MKMapViewDelegate {
+extension DriverHomeViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(overlay: overlay)
         renderer.strokeColor = .purple

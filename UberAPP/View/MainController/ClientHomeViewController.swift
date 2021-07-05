@@ -10,12 +10,13 @@ import MapKit
 import CoreLocation
 import AVFoundation
 import SocketIO
+import KeychainAccess
 
 var sourceLocation: CLLocationCoordinate2D?
 var destinationLocation: CLLocationCoordinate2D?
 var driverLocation: CLLocationCoordinate2D?
 
-class UserViewController: UIViewController {
+class ClientHomeViewController: UIViewController {
 //MARK:-OBJECTS
     let manager = SocketManager(socketURL: URL(string: "http://localhost:3100")!, config: [.log(true), .connectParams(["token": "abc123"]), .compress, .reconnects(true)])
     var socket : SocketIOClient!
@@ -25,6 +26,8 @@ class UserViewController: UIViewController {
     var showMapRoute = false
     let locationDistance : Double = 300
     var location = CLLocationCoordinate2D()
+    
+    var activeOrder = false
     
     lazy var locationManager : CLLocationManager = {
         let locationManager = CLLocationManager()
@@ -48,7 +51,7 @@ class UserViewController: UIViewController {
     }()
     let directionLabel : UILabel = {
         let label = UILabel()
-        label.text = "Where do you want to go?"
+        label.text = "\(user?.name ?? ""), where do you want to go?"
         label.textAlignment = .center
         label.backgroundColor = .white
         label.numberOfLines = 0
@@ -112,6 +115,7 @@ class UserViewController: UIViewController {
         socket.on("connection") { data, ack in
             print("connecteddd")
         }
+        
         socket.connect()
 
         
@@ -162,14 +166,13 @@ class UserViewController: UIViewController {
     }
 //MARK:-FUNCTIONS
     @objc private func orderButtonTapped(){
-        let newOrder = Order(OrderID: "7777777", Username: "ayi", cost: costLabel.text ?? "", userLocation: Location(latitude: sourceLocation!.latitude, longitude: sourceLocation!.longitude), destinationLocation: Location(latitude: destinationLocation!.latitude, longitude: destinationLocation!.longitude))
+        activeOrder = true
+        let newOrder = Order(OrderID: user?._id ?? "", Username: user?.name ?? "", cost: costLabel.text ?? "", userLocation: Location(latitude: sourceLocation!.latitude, longitude: sourceLocation!.longitude), destinationLocation: Location(latitude: destinationLocation!.latitude, longitude: destinationLocation!.longitude))
         
         let jsonEncoder = JSONEncoder()
         let jsonData = try! jsonEncoder.encode(newOrder)
         let data = String(data: jsonData, encoding: String.Encoding.utf8)
-
         print(data)
-        
         socket.emit("onOrder",  data!)
     }
     @objc private func getDirectionButtonTapped(){
@@ -261,6 +264,7 @@ class UserViewController: UIViewController {
     }
     
     @objc func handleTap(_ gestureReconizer: UILongPressGestureRecognizer){
+        guard activeOrder != true else {return}
         mapView.removeOverlays(mapView.overlays)
         if self.mapView.annotations.count > 0 {
             let allAnnotations = self.mapView.annotations
@@ -280,7 +284,7 @@ class UserViewController: UIViewController {
                         if (error != nil)
                         {
                             print("reverse geodcode fail: \(error!.localizedDescription)")
-                        }
+                        } else {
                         let pm = placemarks! as [CLPlacemark]
 
                         if pm.count > 0 {
@@ -298,12 +302,13 @@ class UserViewController: UIViewController {
                             annotation.title = addressString
                             self.pickLocationTextField.placeholder = "\(addressString)"
                       }
+                    }
                 })
         mapRoute(destinationCoordinate: coordinate)
     }
 }
 
-extension UserViewController: CLLocationManagerDelegate {
+extension ClientHomeViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if !showMapRoute {
             if let location = locations.last {
@@ -320,7 +325,7 @@ extension UserViewController: CLLocationManagerDelegate {
         print("entered region")
     }
 }
-extension UserViewController: MKMapViewDelegate {
+extension ClientHomeViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(overlay: overlay)
         renderer.strokeColor = .purple

@@ -8,7 +8,6 @@
 import Foundation
 import Alamofire
 
-class NetworkingClient{
-    func execute(_ url: URL){
-    }
+class NetworkingClient {
+    
 }

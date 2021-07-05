@@ -12,13 +12,6 @@ class OrderUIView: UIView {
     var sourceCordinate : CLLocationCoordinate2D?
     var destinationCordinate : CLLocationCoordinate2D?
     var driverCordinate : CLLocationCoordinate2D?
-
-    
-    var orderID: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
     
     let clientName: UILabel = {
         let label = UILabel()
@@ -43,7 +36,6 @@ class OrderUIView: UIView {
     }
     
     func setupViews(){
-        self.addSubview(orderID)
         self.addSubview(clientName)
         self.addSubview(mapView)
         self.mapView.delegate = self
@@ -66,12 +58,7 @@ class OrderUIView: UIView {
     
     func setSubviews(){
         self.translatesAutoresizingMaskIntoConstraints = false
-        orderID.topAnchor.constraint(equalTo: self.topAnchor, constant: 10).isActive = true
-        orderID.centerXAnchor.constraint(equalTo: self.centerXAnchor ).isActive = true
-        orderID.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 3/4).isActive = true
-        orderID.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 1/8).isActive = true
-        
-        clientName.topAnchor.constraint(equalTo: orderID.bottomAnchor, constant: 10).isActive = true
+        clientName.topAnchor.constraint(equalTo: self.topAnchor, constant: 10).isActive = true
         clientName.centerXAnchor.constraint(equalTo: self.centerXAnchor ).isActive = true
         clientName.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 3/4).isActive = true
         clientName.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 1/8).isActive = true

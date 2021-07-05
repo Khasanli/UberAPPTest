@@ -12,9 +12,19 @@
 		2052A14F267F1BD4009A8288 /* NetworkingClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2052A14E267F1BD4009A8288 /* NetworkingClient.swift */; };
 		205C169E2678FFA800ED2458 /* HomeViewController1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205C169D2678FFA800ED2458 /* HomeViewController1.swift */; };
 		205C16A0267905FA00ED2458 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205C169F267905FA00ED2458 /* MapViewController.swift */; };
-		207406192679F4CF001BDDEE /* DriverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207406182679F4CF001BDDEE /* DriverViewController.swift */; };
-		20ACD717267C867900452808 /* UserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20ACD716267C867800452808 /* UserViewController.swift */; };
+		2061EDFC26883913003F3220 /* DriverLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2061EDFB26883913003F3220 /* DriverLoginViewController.swift */; };
+		2061EDFE26883932003F3220 /* ClientRegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2061EDFD26883932003F3220 /* ClientRegisterViewController.swift */; };
+		2061EE0026883946003F3220 /* ClientLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2061EDFF26883946003F3220 /* ClientLoginViewController.swift */; };
+		2061EE0226883956003F3220 /* DriverRegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2061EE0126883956003F3220 /* DriverRegisterViewController.swift */; };
+		2061EE0826883AD1003F3220 /* StateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2061EE0726883AD1003F3220 /* StateManager.swift */; };
+		2061EE0A26883BA0003F3220 /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2061EE0926883BA0003F3220 /* OnboardingViewController.swift */; };
+		2061EE0C26885C9D003F3220 /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2061EE0B26885C9D003F3220 /* Auth.swift */; };
+		2061EE0E26885E02003F3220 /* ClientViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2061EE0D26885E02003F3220 /* ClientViewModel.swift */; };
+		207406192679F4CF001BDDEE /* DriverHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207406182679F4CF001BDDEE /* DriverHomeViewController.swift */; };
+		208F80F12688BD0D00D6D069 /* DriverViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 208F80F02688BD0C00D6D069 /* DriverViewModel.swift */; };
+		20ACD717267C867900452808 /* ClientHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20ACD716267C867800452808 /* ClientHomeViewController.swift */; };
 		20ACD719267C915A00452808 /* EntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20ACD718267C915A00452808 /* EntryViewController.swift */; };
+		20C7F03B26897AC60044D621 /* OrderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C7F03A26897AC60044D621 /* OrderViewModel.swift */; };
 		20E3C97A2677328C005AF66A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E3C9792677328C005AF66A /* AppDelegate.swift */; };
 		20E3C97C2677328C005AF66A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E3C97B2677328C005AF66A /* SceneDelegate.swift */; };
 		20E3C9842677328C005AF66A /* UberAPP.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 20E3C9822677328C005AF66A /* UberAPP.xcdatamodeld */; };
@@ -30,9 +40,19 @@
 		2052A14E267F1BD4009A8288 /* NetworkingClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingClient.swift; sourceTree = "<group>"; };
 		205C169D2678FFA800ED2458 /* HomeViewController1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController1.swift; sourceTree = "<group>"; };
 		205C169F267905FA00ED2458 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
-		207406182679F4CF001BDDEE /* DriverViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverViewController.swift; sourceTree = "<group>"; };
-		20ACD716267C867800452808 /* UserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewController.swift; sourceTree = "<group>"; };
+		2061EDFB26883913003F3220 /* DriverLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverLoginViewController.swift; sourceTree = "<group>"; };
+		2061EDFD26883932003F3220 /* ClientRegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientRegisterViewController.swift; sourceTree = "<group>"; };
+		2061EDFF26883946003F3220 /* ClientLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientLoginViewController.swift; sourceTree = "<group>"; };
+		2061EE0126883956003F3220 /* DriverRegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverRegisterViewController.swift; sourceTree = "<group>"; };
+		2061EE0726883AD1003F3220 /* StateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateManager.swift; sourceTree = "<group>"; };
+		2061EE0926883BA0003F3220 /* OnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewController.swift; sourceTree = "<group>"; };
+		2061EE0B26885C9D003F3220 /* Auth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
+		2061EE0D26885E02003F3220 /* ClientViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientViewModel.swift; sourceTree = "<group>"; };
+		207406182679F4CF001BDDEE /* DriverHomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverHomeViewController.swift; sourceTree = "<group>"; };
+		208F80F02688BD0C00D6D069 /* DriverViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverViewModel.swift; sourceTree = "<group>"; };
+		20ACD716267C867800452808 /* ClientHomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientHomeViewController.swift; sourceTree = "<group>"; };
 		20ACD718267C915A00452808 /* EntryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryViewController.swift; sourceTree = "<group>"; };
+		20C7F03A26897AC60044D621 /* OrderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderViewModel.swift; sourceTree = "<group>"; };
 		20E3C9762677328C005AF66A /* UberAPP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UberAPP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		20E3C9792677328C005AF66A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		20E3C97B2677328C005AF66A /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -56,6 +76,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2061EDF8268838CC003F3220 /* MainController */ = {
+			isa = PBXGroup;
+			children = (
+				207406182679F4CF001BDDEE /* DriverHomeViewController.swift */,
+				20ACD716267C867800452808 /* ClientHomeViewController.swift */,
+				2061EDFB26883913003F3220 /* DriverLoginViewController.swift */,
+				2061EDFD26883932003F3220 /* ClientRegisterViewController.swift */,
+				2061EDFF26883946003F3220 /* ClientLoginViewController.swift */,
+				2061EE0126883956003F3220 /* DriverRegisterViewController.swift */,
+				20ACD718267C915A00452808 /* EntryViewController.swift */,
+				2061EE0926883BA0003F3220 /* OnboardingViewController.swift */,
+			);
+			path = MainController;
+			sourceTree = "<group>";
+		};
 		207406172679F3F5001BDDEE /* Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -102,6 +137,7 @@
 			isa = PBXGroup;
 			children = (
 				2023624126841EA6007BEE71 /* Order.swift */,
+				2061EE0B26885C9D003F3220 /* Auth.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -109,7 +145,7 @@
 		20E6B909267B814000F2B91E /* View */ = {
 			isa = PBXGroup;
 			children = (
-				20E6B90D267B819700F2B91E /* Controllers */,
+				2061EDF8268838CC003F3220 /* MainController */,
 				202362432684235B007BEE71 /* OrderUIView.swift */,
 			);
 			path = View;
@@ -118,6 +154,9 @@
 		20E6B90A267B814C00F2B91E /* ModelView */ = {
 			isa = PBXGroup;
 			children = (
+				2061EE0D26885E02003F3220 /* ClientViewModel.swift */,
+				208F80F02688BD0C00D6D069 /* DriverViewModel.swift */,
+				20C7F03A26897AC60044D621 /* OrderViewModel.swift */,
 			);
 			path = ModelView;
 			sourceTree = "<group>";
@@ -126,6 +165,7 @@
 			isa = PBXGroup;
 			children = (
 				2052A14E267F1BD4009A8288 /* NetworkingClient.swift */,
+				2061EE0726883AD1003F3220 /* StateManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -139,16 +179,6 @@
 				20E3C9852677328E005AF66A /* Assets.xcassets */,
 			);
 			path = Resources;
-			sourceTree = "<group>";
-		};
-		20E6B90D267B819700F2B91E /* Controllers */ = {
-			isa = PBXGroup;
-			children = (
-				207406182679F4CF001BDDEE /* DriverViewController.swift */,
-				20ACD716267C867800452808 /* UserViewController.swift */,
-				20ACD718267C915A00452808 /* EntryViewController.swift */,
-			);
-			path = Controllers;
 			sourceTree = "<group>";
 		};
 		25D436BAAC1DAF9CEB3337D3 /* Frameworks */ = {
@@ -180,6 +210,7 @@
 				20E3C9732677328C005AF66A /* Frameworks */,
 				20E3C9742677328C005AF66A /* Resources */,
 				3896DFB60868E33FBC518DFB /* [CP] Embed Pods Frameworks */,
+				B8E067CFE8400F825F87EA23 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -274,6 +305,23 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		B8E067CFE8400F825F87EA23 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-UberAPP/Pods-UberAPP-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-UberAPP/Pods-UberAPP-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-UberAPP/Pods-UberAPP-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -281,17 +329,27 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				20ACD717267C867900452808 /* UserViewController.swift in Sources */,
+				20ACD717267C867900452808 /* ClientHomeViewController.swift in Sources */,
 				202362442684235B007BEE71 /* OrderUIView.swift in Sources */,
+				2061EDFE26883932003F3220 /* ClientRegisterViewController.swift in Sources */,
+				2061EE0A26883BA0003F3220 /* OnboardingViewController.swift in Sources */,
+				2061EDFC26883913003F3220 /* DriverLoginViewController.swift in Sources */,
+				208F80F12688BD0D00D6D069 /* DriverViewModel.swift in Sources */,
 				205C169E2678FFA800ED2458 /* HomeViewController1.swift in Sources */,
 				2023624226841EA6007BEE71 /* Order.swift in Sources */,
+				2061EE0C26885C9D003F3220 /* Auth.swift in Sources */,
 				20E3C97A2677328C005AF66A /* AppDelegate.swift in Sources */,
 				20E3C97C2677328C005AF66A /* SceneDelegate.swift in Sources */,
+				2061EE0826883AD1003F3220 /* StateManager.swift in Sources */,
 				205C16A0267905FA00ED2458 /* MapViewController.swift in Sources */,
+				2061EE0026883946003F3220 /* ClientLoginViewController.swift in Sources */,
+				20C7F03B26897AC60044D621 /* OrderViewModel.swift in Sources */,
+				2061EE0226883956003F3220 /* DriverRegisterViewController.swift in Sources */,
 				2052A14F267F1BD4009A8288 /* NetworkingClient.swift in Sources */,
 				20ACD719267C915A00452808 /* EntryViewController.swift in Sources */,
 				20E3C9842677328C005AF66A /* UberAPP.xcdatamodeld in Sources */,
-				207406192679F4CF001BDDEE /* DriverViewController.swift in Sources */,
+				2061EE0E26885E02003F3220 /* ClientViewModel.swift in Sources */,
+				207406192679F4CF001BDDEE /* DriverHomeViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
