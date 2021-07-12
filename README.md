@@ -3,7 +3,7 @@
 This APP made programmatically and contains: 
 
 - MVVM 
-- Alamofire for RestApi
+- Alamofire for RestApi (login and register)
 - Mapkit for creating mapviews
 - KeychainAccess for taking token
 - Core location for getting users' current location and update driver location
