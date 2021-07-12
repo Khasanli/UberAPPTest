@@ -13,6 +13,6 @@ This APP made programmatically and contains:
 
 ![ezgif-4-a8358cb46586](https://user-images.githubusercontent.com/47345666/125296635-89d3d600-e337-11eb-86f7-7fd2aa578b4d.gif)
 
-2. Realtime connection between driver and user 
+2. Realtime connection between User(left screen view) and Dirver(right screen view)
 
 ![ezgif-4-a3d56ec344a5](https://user-images.githubusercontent.com/47345666/125297160-0e265900-e338-11eb-905d-61c2012536df.gif)
