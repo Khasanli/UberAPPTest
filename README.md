@@ -7,7 +7,8 @@ This APP made programmatically and contains:
 - Mapkit for creating mapviews
 - KeychainAccess for taking token
 - Core location for getting users' current location and update driver location
-- Socket.io for getting realtime connection between driver and client while ordering 
+- Socket.io for getting realtime connection between driver and client while ordering
+- Note: Backend and server for socket.io is created by ME. I used Node.js and Express.js while creating backend.   
 
 1. Onboarding screen which takes you to auth screen
 
